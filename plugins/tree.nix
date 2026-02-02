@@ -1,10 +1,8 @@
 { pkgs, ... }:
 {
-    programs.nixvim.plugins =
-    {
-        nvim-tree =
-        {
-            enable = true;
-        }
-    }
+  programs.nixvim.plugins = {
+    nvim-tree = {
+      enable = true;
+    };
+  };
 }

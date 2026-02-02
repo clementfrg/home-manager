@@ -57,6 +57,7 @@
           pyright.enable = true;
           pylsp.enable = true;
           tflint.enable = true;
+          jdtls.enable = true;
         };
       };
       lsp-format = {

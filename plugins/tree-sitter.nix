@@ -33,6 +33,7 @@
         vimdoc
         yaml
         asm
+        java
         # Ajoutez tous les langages dont vous avez besoin
       ];
     };
