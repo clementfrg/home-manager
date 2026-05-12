@@ -5,7 +5,7 @@
       enable = true;
       nixvimInjections = true;
       nixGrammars = true; # ← IMPORTANT pour Nix
-      folding = true;
+      folding.enable = true;
 
       settings = {
         indent.enable = true;
@@ -38,16 +38,16 @@
       ];
     };
 
-    treesitter-refactor = {
-      enable = true;
-      settings = {
-        highlight_definitions = {
-          enable = true;
-          clear_on_cursor_move = false;
-        };
-      };
-    };
+    # treesitter-refactor = {
+    #   enable = true;
+    #   settings = {
+    #     highlight_definitions = {
+    #       enable = true;
+    #       clear_on_cursor_move = false;
+    #     };
+    #   };
+    # };
 
-    hmts.enable = true;
+    # hmts.enable = true; # Désactivé car conflit avec treesitter
   };
 }

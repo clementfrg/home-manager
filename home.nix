@@ -1,15 +1,11 @@
-{ config, pkgs, ... }:
-let
-  nixvim = import (
-    builtins.fetchGit {
-      url = "https://github.com/nix-community/nixvim";
-      ref = "nixos-25.11";
-    }
-  );
-in
+{
+  config,
+  pkgs,
+  claude-desktop,
+  ...
+}:
 {
   imports = [
-    nixvim.homeModules.nixvim
     ./autocommands.nix
     ./completion.nix
     ./keymappings.nix
@@ -42,11 +38,16 @@ in
       # # "Hello, world!" when run.
       # pkgs.hello
       zsh
+      notion-app-enhanced
+      obsidian
+      bitwarden-desktop
+      transmission_4-gtk
       pavucontrol
+      prismlauncher
       appimage-run
       ripgrep
       gns3-gui
-      gns3Packages.serverPreview
+      gns3-server
       valgrind
       alacritty
       networkmanagerapplet
@@ -58,7 +59,7 @@ in
       bat
       zoxide
       eza
-      blueberry
+      blueman
       spotify
       autorandr
       arandr
@@ -80,7 +81,7 @@ in
       ltrace
       ubridge
       dynamips
-      electron_38
+      electron_39
       dunst
       graphviz
       piper-tts
@@ -93,7 +94,19 @@ in
       inetutils
       vesktop
       jetbrains.idea
+      lombok
+      playerctl
+      nwg-displays
+      eww
+      flameshot
+      grim
+      satty
+      jdk21
+      slurp
+      cmake
+      bear
       #clang-tools
+      claude-desktop.packages.${pkgs.system}.claude-desktop-fhs
       # # It is sometimes useful to fine-tune packages, for example, by applying
       # # overrides. You can do that directly here, just don't forget the
       # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
@@ -206,79 +219,84 @@ in
   # Neovim
   # Neovim
   programs.nixvim = {
-      enable = true;
-      defaultEditor = true;
-      viAlias = true;
-      vimAlias = true;
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
 
-      luaLoader.enable = true;
-      extraConfigLua = ''
-        -- Quarto runner keymaps (Lua functions)
-        local runner = require("quarto.runner")
-        vim.keymap.set("n", "<leader>rc", runner.run_cell,  { desc = "Run cell", silent = true })
-        vim.keymap.set("n", "<leader>rca", runner.run_above, { desc = "Run cell and above", silent = true })
-        vim.keymap.set("n", "<leader>rA", runner.run_all,   { desc = "Run all cells", silent = true })
-        vim.keymap.set("n", "<leader>rl", runner.run_line,  { desc = "Run line", silent = true })
-        vim.keymap.set("v", "<leader>r",  runner.run_range, { desc = "Run visual range", silent = true })
-        vim.keymap.set("n", "<leader>RA", function()
-          runner.run_all(true)
-        end, { desc = "Run all cells of all languages", silent = true })
+    luaLoader.enable = true;
+    extraConfigLua = ''
+      -- Quarto runner keymaps (Lua functions)
+      local runner = require("quarto.runner")
+      vim.keymap.set("n", "<leader>rc", runner.run_cell,  { desc = "Run cell", silent = true })
+      vim.keymap.set("n", "<leader>rca", runner.run_above, { desc = "Run cell and above", silent = true })
+      vim.keymap.set("n", "<leader>rA", runner.run_all,   { desc = "Run all cells", silent = true })
+      vim.keymap.set("n", "<leader>rl", runner.run_line,  { desc = "Run line", silent = true })
+      vim.keymap.set("v", "<leader>r",  runner.run_range, { desc = "Run visual range", silent = true })
+      vim.keymap.set("n", "<leader>RA", function()
+        runner.run_all(true)
+      end, { desc = "Run all cells of all languages", silent = true })
 
-        -- Command to create a new empty .ipynb file
-        local default_notebook = [[
-        {
-          "cells": [
-           {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [""]
-           }
-          ],
-          "metadata": {
-           "kernelspec": {
-            "display_name": "Python 3",
-            "language": "python",
-            "name": "python3"
-           },
-           "language_info": {
-            "codemirror_mode": {
-              "name": "ipython"
-            },
-            "file_extension": ".py",
-            "mimetype": "text/x-python",
-            "name": "python",
-            "nbconvert_exporter": "python",
-            "pygments_lexer": "ipython3"
-           }
+      -- Command to create a new empty .ipynb file
+      local default_notebook = [[
+      {
+        "cells": [
+         {
+          "cell_type": "markdown",
+          "metadata": {},
+          "source": [""]
+         }
+        ],
+        "metadata": {
+         "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+         },
+         "language_info": {
+          "codemirror_mode": {
+            "name": "ipython"
           },
-          "nbformat": 4,
-          "nbformat_minor": 5
-        }
-        ]]
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3"
+         }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5
+      }
+      ]]
 
-        local function new_notebook(filename)
-          local path = filename .. ".ipynb"
-          local file = io.open(path, "w")
-          if file then
-            file:write(default_notebook)
-            file:close()
-            vim.cmd("edit " .. path)
-          else
-            print("Error: Could not open new notebook file for writing.")
-          end
+      local function new_notebook(filename)
+        local path = filename .. ".ipynb"
+        local file = io.open(path, "w")
+        if file then
+          file:write(default_notebook)
+          file:close()
+          vim.cmd("edit " .. path)
+        else
+          print("Error: Could not open new notebook file for writing.")
         end
+      end
 
-        vim.api.nvim_create_user_command('NewNotebook', function(opts)
-          new_notebook(opts.args)
-        end, {
-          nargs = 1,
-          complete = 'file'
-        })
-      '';
+      vim.api.nvim_create_user_command('NewNotebook', function(opts)
+        new_notebook(opts.args)
+      end, {
+        nargs = 1,
+        complete = 'file'
+      })
+    '';
   };
 
   # Starship command history
   programs.starship = {
+    enable = true;
+  };
+
+  # Zen Browser
+  programs.zen-browser = {
     enable = true;
   };
 

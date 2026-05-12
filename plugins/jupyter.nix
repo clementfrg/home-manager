@@ -9,12 +9,7 @@
       };
       enable = true;
     };
-    image = {
-      settings = {
-        backend = "kitty";
-      };
-      enable = true;
-    };
+    # image configuré dans image.nix - supprimé pour éviter les doublons
     quarto = {
       settings = {
         codeRunner = {

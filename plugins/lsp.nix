@@ -1,3 +1,4 @@
+{ pkgs, ... }:
 {
   programs.nixvim = {
     plugins = {
@@ -57,7 +58,22 @@
           pyright.enable = true;
           pylsp.enable = true;
           tflint.enable = true;
-          jdtls.enable = true;
+          yamlls.enable = true;
+          jdtls = {
+            enable = true;
+            extraOptions = {
+              cmd = [
+                "${pkgs.jdt-language-server}/bin/jdtls"
+                "--jvm-arg=-javaagent:${pkgs.lombok}/share/java/lombok.jar"
+              ];
+              settings = {
+                java = {
+                  trace.server = "off"; # ou "messages" / "verbose"
+                  progressReports.enabled = false;
+                };
+              };
+            };
+          };
         };
       };
       lsp-format = {
